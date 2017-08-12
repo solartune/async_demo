@@ -1,0 +1,53 @@
+version: '3'
+
+networks:
+  infra_default:
+    external: true
+  async_network:
+    external: true
+
+services:
+  application:
+    build:
+      context: .
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - "8000:8000"
+    hostname: "async"
+    command: gunicorn application.main:app -c gunicorn.py
+    environment:
+      - MONGODB_HOST=mongodb-async
+      - MONGODB_PORT=27017
+    networks:
+      async_network:
+        aliases:
+          - "async"
+      infra_default:
+        aliases:
+          - "async"
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:3.4
+    hostname: "mongodb-async"
+    ports:
+      - "27017:27017"
+    networks:
+      async_network:
+        aliases:
+          - "mongodb-async"
+    restart: unless-stopped
+
+  swaggerui:
+    image: swaggerapi/swagger-ui:v3.1.5
+    hostname: "swaggerui-async"
+    ports:
+      - "8080:8080"
+    networks:
+      async_network:
+        aliases:
+          - "swaggerui-async"
+    restart: unless-stopped
