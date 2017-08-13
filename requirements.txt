@@ -1,5 +1,6 @@
-aiohttp
-cchardet
-aiodns
-motor
-gunicorn
+aiohttp==2.2.5
+cchardet==2.1.1
+aiodns==1.1.1
+motor==1.1
+gunicorn==19.7.1
+aiohttp-swagger==1.0.5
