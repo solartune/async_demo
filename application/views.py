@@ -3,39 +3,34 @@ import json
 import os
 
 from aiohttp.web import View, json_response, Response
-from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ReturnDocument
 
-logger = logging.getLogger(__file__)
 
+class TreeView:
 
-class TreeView(View):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.db_client = AsyncIOMotorClient(
-            os.getenv('MONGODB_HOST'), int(os.getenv('MONGODB_PORT')))
-        self.db = self.db_client.asyncio_db
-
-    async def get(self):
-        objects = self.db.tree.find()
+    async def list(self, request):
+        objects = request.app.db.tree.find()
         return json_response(await objects.to_list(None))
 
-    async def post(self):
-        data = await self.request.json()
-        obj = await self.db.tree.find_one_and_update(
+    async def add(self, request):
+        data = await request.json()
+        obj = await request.app.db.tree.find_one_and_update(
             {'_id': data['id']},
             {'$set': {'text': data['text']}},
             projection={'text': True, '_id': False},
             upsert=True,
             return_document=ReturnDocument.AFTER)
-        return json_response({'obj': str(obj)})
+        return json_response(obj)
 
-    async def get_object(self):
-        obj_id = self.match_info.get('obj_id')
-        data = {'type': 'get_object', 'obj_id': obj_id}
-        return json_response(data)
+    async def detail(self, request):
+        obj_id = int(request.match_info.get('obj_id'))
+        obj = await request.app.db.tree.find_one({'_id': obj_id})
+        return json_response(obj)
 
-    async def search(self):
-        data = {'type': 'search'}
-        return json_response(data)
+    async def search(self, request):
+        data = await request.json()
+        request.app.db.tree.create_index([('text', 'text')])
+        objects = request.app.db.tree.find(
+            {'$text': {'$search': data['query']}})
+
+        return json_response(await objects.to_list(None))
