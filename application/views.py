@@ -20,7 +20,7 @@ class AuthView:
         user = await request.app.db.auth.find_one({'login': data['login']})
         if user:
             return json_response(
-                {'message': 'This user already exists'}, status=400)
+                {'message': 'This user already exists'}, status=409)
         await request.app.db.auth.insert_one({
             'login': data['login'],
             'password': encrypt_password(data['password']),
@@ -31,7 +31,6 @@ class AuthView:
 
     async def login(self, request):
         data = await request.json()
-        logging.info(data)
         user = await request.app.db.auth.find_one({'login': data['login']})
         if not check_password(data['password'], user['password']):
             return json_response({'message': 'Wrong credentials'}, status=400)
@@ -67,6 +66,10 @@ class TreeView:
     async def detail(self, request):
         obj_id = int(request.match_info.get('obj_id'))
         obj = await request.app.db.tree.find_one({'_id': obj_id})
+        if not obj:
+            return json_response({
+                'message': 'Object with id {0} does not exists'.format(obj_id)
+            }, status=404)
         return json_response(obj)
 
     @login_required

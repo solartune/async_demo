@@ -10,7 +10,7 @@ from .middlewaries import auth_middleware
 
 app = web.Application(middlewares=[auth_middleware])
 setup_routes(app)
-setup_swagger(app)
+setup_swagger(app, swagger_from_file="swagger.yaml")
 
 app.db_client = AsyncIOMotorClient(
     os.getenv('MONGODB_HOST'), int(os.getenv('MONGODB_PORT')))

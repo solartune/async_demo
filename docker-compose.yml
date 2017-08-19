@@ -40,14 +40,3 @@ services:
         aliases:
           - "mongodb-async"
     restart: unless-stopped
-
-  swaggerui:
-    image: swaggerapi/swagger-ui:v3.1.5
-    hostname: "swaggerui-async"
-    ports:
-      - "8080:8080"
-    networks:
-      async_network:
-        aliases:
-          - "swaggerui-async"
-    restart: unless-stopped

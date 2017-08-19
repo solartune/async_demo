@@ -1,0 +1,175 @@
+swagger: '2.0'
+info:
+  description: >-
+    This is a demo project based on asyncio just for test some asynchronous
+    features.
+  version: 1.0.0
+  title: Async demo project
+  contact:
+    email: solartune.7@gmail.com
+host: '127.0.0.1:8000'
+basePath: /
+tags:
+  - name: auth
+    description: Registration and login users with jwt token
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: tree
+    description: Operations with some objects
+schemes:
+  - http
+paths:
+  /registration:
+    post:
+      tags:
+        - auth
+      summary: Add a new user to the store
+      description: ''
+      operationId: addUser
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          description: user login and password
+          schema:
+            $ref: '#/definitions/Auth'
+      responses:
+        '201':
+          description: New user has been created.
+        '409':
+          description: User already exists.
+  /login:
+    post:
+      tags:
+        - auth
+      summary: Login users to the system
+      description: ''
+      operationId: loginUser
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          description: user's login and password
+          schema:
+            $ref: '#/definitions/Auth'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: wrong credentials
+  /:
+    get:
+      tags:
+        - tree
+      summary: Get all objects
+      description: ''
+      operationId: getAllObjects
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: user is not authorized
+    post:
+      tags:
+        - tree
+      summary: Create or update an object
+      description: ''
+      consumes:
+        - application/json
+      operationId: addObject
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          description: user's login and password
+          schema:
+            $ref: '#/definitions/Object'
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: user is not authorized
+  '/detail/{objId}':
+    get:
+      tags:
+        - tree
+      summary: Get an object by id
+      description: Returns a single object
+      operationId: getObject
+      produces:
+        - application/json
+      parameters:
+        - name: objId
+          in: path
+          description: ID of an object to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: user is not authorized
+        '404':
+          description: object not found
+  /search:
+    post:
+      tags:
+        - tree
+      summary: Full text search by text field
+      description: ''
+      operationId: search
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          description: Query for search objects
+          schema:
+            $ref: '#/definitions/Search'
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: user is not authorized
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  Auth:
+    type: object
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+  Object:
+    type: object
+    properties:
+      id:
+        type: integer
+      text:
+        type: string
+  Search:
+    type: object
+    properties:
+      query:
+        type: string
