@@ -15,7 +15,7 @@ down:
 reload:
 	docker exec -ti async_application_1 sh_scripts/reload_gunicorn.sh
 
-restart-app:
+restart:
 	docker restart async_application_1
 
 logs-app:

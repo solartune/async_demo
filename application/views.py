@@ -1,12 +1,10 @@
 import logging
 import json
 import os
+from datetime import datetime, timedelta
 
 from aiohttp.web import View, json_response, Response
 from pymongo import ReturnDocument
-
-
-from datetime import datetime, timedelta
 import jwt
 
 from .helpers import encrypt_password, check_password
@@ -17,13 +15,19 @@ from configs.settings import JWT_SECRET, JWT_ALGORITHM, JWT_EXP_DELTA_SECONDS
 class AuthView:
 
     async def registration(self, request):
+        request.app.db.auth.create_index("login", unique=True)
         data = await request.json()
-        user = await request.app.db.auth.insert({
+        user = await request.app.db.auth.find_one({'login': data['login']})
+        if user:
+            return json_response(
+                {'message': 'This user already exists'}, status=400)
+        await request.app.db.auth.insert_one({
             'login': data['login'],
             'password': encrypt_password(data['password']),
             'created_at': datetime.utcnow()
         })
-        return json_response({'message': 'New user has been created!'})
+        return json_response(
+            {'message': 'New user has been created!'}, status=201)
 
     async def login(self, request):
         data = await request.json()

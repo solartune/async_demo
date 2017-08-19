@@ -16,8 +16,10 @@ async def auth_middleware(app, handler):
                     jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM]
                 )
             except (jwt.DecodeError, jwt.ExpiredSignatureError):
-                return json_response({'message': 'Token is invalid'}, status=400)
+                return json_response(
+                    {'message': 'Token is invalid'}, status=400)
 
-            request.user = request.app.db.auth.find_one({'login': payload['login']})
+            request.user = request.app.db.auth \
+                .find_one({'login': payload['login']})
         return await handler(request)
     return middleware
