@@ -32,6 +32,7 @@ class AuthTest(AioHTTPTestCase):
 
     def tearDown(self):
         self.app.db_client.drop_database('asyncio_test_db')
+        self.client.session.close()
 
     @unittest_run_loop
     async def test_registration(self):
@@ -113,6 +114,10 @@ class TreeTest(AioHTTPTestCase):
         super().setUp()
         self.app.db_client.drop_database('asyncio_test_db')
 
+    def tearDown(self):
+        self.app.db_client.drop_database('asyncio_test_db')
+        self.client.session.close()
+
     async def get_token(self):
         self.login = "test"
         self.password = "test123"
@@ -126,9 +131,6 @@ class TreeTest(AioHTTPTestCase):
         request = await self.client.request("post", "/login", data=data)
         content = json.loads(await request.content.read())
         return content["token"]
-
-    def tearDown(self):
-        self.app.db_client.drop_database('asyncio_test_db')
 
     @unittest_run_loop
     async def test_add_object(self):
