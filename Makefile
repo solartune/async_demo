@@ -20,3 +20,6 @@ restart:
 
 logs-app:
 	docker logs --tail=200 async_application_1
+
+tests:
+	docker exec -ti async_application_1 python -m unittest

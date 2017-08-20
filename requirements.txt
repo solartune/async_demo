@@ -6,3 +6,4 @@ gunicorn==19.7.1
 aiohttp-swagger==1.0.5
 PyJWT==1.5.2
 passlib==1.7.1
+pytest-aiohttp==0.1.3

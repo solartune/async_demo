@@ -26,13 +26,15 @@ class AuthView:
             'password': encrypt_password(data['password']),
             'created_at': datetime.utcnow()
         })
+        print(request)
         return json_response(
             {'message': 'New user has been created!'}, status=201)
 
     async def login(self, request):
         data = await request.json()
         user = await request.app.db.auth.find_one({'login': data['login']})
-        if not check_password(data['password'], user['password']):
+
+        if not user or not check_password(data['password'], user['password']):
             return json_response({'message': 'Wrong credentials'}, status=400)
 
         payload = {
@@ -48,8 +50,8 @@ class TreeView:
 
     @login_required
     async def list(self, request):
-        objects = request.app.db.tree.find()
-        return json_response(await objects.to_list(None))
+        objects = await request.app.db.tree.find().to_list(None)
+        return json_response(objects)
 
     @login_required
     async def add(self, request):
@@ -76,7 +78,7 @@ class TreeView:
     async def search(self, request):
         data = await request.json()
         request.app.db.tree.create_index([('text', 'text')])
-        objects = request.app.db.tree.find(
-            {'$text': {'$search': data['query']}})
+        objects = await request.app.db.tree.find(
+            {'$text': {'$search': data['query']}}).to_list(None)
 
-        return json_response(await objects.to_list(None))
+        return json_response(objects)
