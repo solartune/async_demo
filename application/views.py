@@ -26,7 +26,6 @@ class AuthView:
             'password': encrypt_password(data['password']),
             'created_at': datetime.utcnow()
         })
-        print(request)
         return json_response(
             {'message': 'New user has been created!'}, status=201)
 
