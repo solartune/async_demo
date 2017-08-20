@@ -33,6 +33,7 @@ NOTE!
 This project uses JWT token for authorization in the system.
 ```
 Since all methods required the authorization you need login to the system and use JWT token in headers `Authorization: <your token>`
+After this you have 5 minutes before your token expires
 
 ## API and Swagger UI
 
