@@ -168,6 +168,8 @@ definitions:
         type: integer
       text:
         type: string
+      extra:
+        type: object
   Search:
     type: object
     properties:
