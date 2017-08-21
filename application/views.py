@@ -15,6 +15,7 @@ from configs.settings import JWT_SECRET, JWT_ALGORITHM, JWT_EXP_DELTA_SECONDS
 class AuthView:
 
     async def registration(self, request):
+        """Registration new users in the system."""
         request.app.db.auth.create_index("login", unique=True)
         data = await request.json()
         user = await request.app.db.auth.find_one({'login': data['login']})
@@ -30,6 +31,7 @@ class AuthView:
             {'message': 'New user has been created!'}, status=201)
 
     async def login(self, request):
+        """Authorize users in the system."""
         data = await request.json()
         user = await request.app.db.auth.find_one({'login': data['login']})
 
@@ -49,22 +51,24 @@ class TreeView:
 
     @login_required
     async def list(self, request):
+        """Shows all objects from the database."""
         objects = await request.app.db.tree.find().to_list(None)
         return json_response(objects)
 
     @login_required
     async def add(self, request):
+        """Adds new object to the system."""
         data = await request.json()
         obj = await request.app.db.tree.find_one_and_update(
             {'_id': data['id']},
-            {'$set': {'text': data['text']}},
-            projection={'text': True, '_id': False},
+            {'$set': {'text': data['text'], 'extra': data['extra']}},
             upsert=True,
             return_document=ReturnDocument.AFTER)
         return json_response(obj)
 
     @login_required
     async def detail(self, request):
+        """Shows one object by its id."""
         obj_id = int(request.match_info.get('obj_id'))
         obj = await request.app.db.tree.find_one({'_id': obj_id})
         if not obj:
@@ -75,6 +79,7 @@ class TreeView:
 
     @login_required
     async def search(self, request):
+        """Shows have found objects by a query."""
         data = await request.json()
         request.app.db.tree.create_index([('text', 'text')])
         objects = await request.app.db.tree.find(

@@ -1,4 +1,3 @@
-
 from aiohttp.web import json_response
 
 import jwt
@@ -7,6 +6,7 @@ from configs.settings import JWT_SECRET, JWT_ALGORITHM
 
 
 async def auth_middleware(app, handler):
+    """Finds jwt token in headers and validate it."""
     async def middleware(request):
         request.user = None
         jwt_token = request.headers.get('Authorization', None)

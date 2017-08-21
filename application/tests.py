@@ -139,7 +139,8 @@ class TreeTest(AioHTTPTestCase):
 
         token = await self.get_token()
         headers = {"Authorization": token}
-        data = json.dumps({"id": 1, "text": "some text"})
+        data = json.dumps(
+            {"id": 1, "text": "some text", "extra": {"field": "extra field"}})
         request = await self.client.request(
             "post", "/", headers=headers, data=data)
         self.assertEqual(request.status, 200)
@@ -149,8 +150,11 @@ class TreeTest(AioHTTPTestCase):
     @unittest_run_loop
     async def test_get_objects(self):
         await self.app.db.tree.insert_many([
-            {'_id': 1, 'text': 'some text'},
-            {'_id': 2, 'text': 'some text 2'},
+            {'_id': 1, 'text': 'some text', "extra": {"field": "extra field"}},
+            {
+                '_id': 2, 'text': 'some text 2',
+                "extra": {"field": "extra field2"}
+            },
         ])
 
         token = await self.get_token()
@@ -163,7 +167,10 @@ class TreeTest(AioHTTPTestCase):
     @unittest_run_loop
     async def test_get_object_details(self):
         obj_id = 1
-        await self.app.db.tree.insert_one({'_id': obj_id, 'text': 'some text'})
+        await self.app.db.tree.insert_one({
+            '_id': obj_id, 'text': 'some text',
+            "extra": {"field": "extra field"}
+        })
 
         token = await self.get_token()
         headers = {"Authorization": token}
@@ -176,9 +183,15 @@ class TreeTest(AioHTTPTestCase):
     @unittest_run_loop
     async def test_get_object_details(self):
         await self.app.db.tree.insert_many([
-            {'_id': 1, 'text': 'some text'},
-            {'_id': 2, 'text': 'another text'},
-            {'_id': 3, 'text': 'object description'},
+            {'_id': 1, 'text': 'some text', "extra": {"field": "extra field"}},
+            {
+                '_id': 2, 'text': 'another text',
+                "extra": {"field": "another extra"}
+            },
+            {
+                '_id': 3, 'text': 'object description',
+                "extra": {"field": "object extra"}
+            },
         ])
 
         token = await self.get_token()
